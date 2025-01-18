@@ -6,4 +6,4 @@ RUN chmod +x /usr/bin/cloudflared
 
 COPY src/main.sh /main.sh
 
-ENTRYPOINT ["bash", "/main.sh"]
+ENTRYPOINT ["bash", "-c", "/main.sh"]
