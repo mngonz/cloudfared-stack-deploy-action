@@ -22,7 +22,6 @@ function cleanup_trap() {
 
 mkdir -p /root/.ssh
 chmod 0700 /root/.ssh
-ssh-keyscan -p "${INPUT_PORT}" -H "${INPUT_HOST}" >> /root/.ssh/known_hosts
 
 if [ -z "${INPUT_SSH_KEY}" ];then
     echo -e "\u001b[36mCreating and Copying SSH Key to: ${INPUT_HOST}"
@@ -35,10 +34,10 @@ if [ -z "${INPUT_SSH_KEY}" ];then
             "${INPUT_USER}@${INPUT_HOST}"
 else
     echo -e "\u001b[36mAdding SSH Key to SSH Agent"
-    echo "${INPUT_SSH_KEY}" > /root/.ssh/id_rsa
+    echo -e "${INPUT_SSH_KEY}" > /root/.ssh/id_rsa
     chmod 0600 /root/.ssh/id_rsa
     eval "$(ssh-agent -s)"
-    ssh-add /root/.ssh/id_rsa
+    ssh-add -v /root/.ssh/id_rsa
 fi
 
 # Create hosts file config
@@ -50,11 +49,7 @@ else
     echo "ProxyCommand cloudflared access ssh --hostname %h --id ${INPUT_CF_TOKEN_ID} --secret ${INPUT_CF_TOKEN_SECRET}" >> /root/.ssh/config
 fi
 
-
 trap cleanup_trap EXIT HUP INT QUIT PIPE TERM
-
-echo -e "\u001b[36mVerifying Docker and Setting Context."
-ssh -p "${INPUT_PORT}" "${INPUT_USER}@${INPUT_HOST}" "docker info" > /dev/null
 
 docker context create remote --docker "host=ssh://${INPUT_USER}@${INPUT_HOST}:${INPUT_PORT}"
 docker context ls
