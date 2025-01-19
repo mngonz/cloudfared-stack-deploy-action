@@ -40,8 +40,7 @@ inputs:
     required: false
   with_registry_auth:
     description: "Should deploy using registry auth"
-    type: boolean
-    default: false
+    default: 'false'
     required: false
 
 runs:
