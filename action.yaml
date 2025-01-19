@@ -38,6 +38,11 @@ inputs:
   cf_token_secret:
     description: "Cloudflare service token secret"
     required: false
+  with_registry_auth:
+    description: "Should deploy using registry auth"
+    type: boolean
+    default: false
+    required: false
 
 runs:
   using: "docker"

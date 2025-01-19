@@ -37,23 +37,30 @@ else
     echo -e "${INPUT_SSH_KEY}" > /root/.ssh/id_rsa
     chmod 0600 /root/.ssh/id_rsa
     eval "$(ssh-agent -s)"
-    ssh-add -v /root/.ssh/id_rsa
+    ssh-add /root/.ssh/id_rsa
 fi
 
 # Create hosts file config
 echo "Host ${INPUT_HOST}" >> /root/.ssh/config
+echo "User ${INPUT_USER}" >> /root/.ssh/config
+echo "IdentityFile ~/.ssh/id_rsa" >> /root/.ssh/config
+echo "UserKnownHostsFile ~/.ssh/known_hosts" >> /root/.ssh/config
+echo "ServerAliveInterval 240" >> /root/.ssh/config
+# I've decided to accept new because isn't any connection going to be new anyway?
+echo "StrictHostKeyChecking accept-new" >> /root/.ssh/config
 if [ -z ${INPUT_CF_TOKEN_ID} ] && [ -z ${INPUT_CF_TOKEN_SECRET} ]
 then
-    echo "ProxyCommand cloudflared access ssh --hostname %h" >> /root/.ssh/config
+    echo "ProxyCommand /usr/bin/cloudflared access ssh --hostname %h" >> /root/.ssh/config
 else
-    echo "ProxyCommand cloudflared access ssh --hostname %h --id ${INPUT_CF_TOKEN_ID} --secret ${INPUT_CF_TOKEN_SECRET}" >> /root/.ssh/config
+    echo "ProxyCommand /usr/bin/cloudflared access ssh --hostname %h --id ${INPUT_CF_TOKEN_ID} --secret ${INPUT_CF_TOKEN_SECRET}" >> /root/.ssh/config
 fi
 
 trap cleanup_trap EXIT HUP INT QUIT PIPE TERM
 
+echo -e "\u001b[36mVerifying Docker and Setting Context."
 docker context create remote --docker "host=ssh://${INPUT_USER}@${INPUT_HOST}:${INPUT_PORT}"
-docker context ls
 docker context use remote
+docker info > /dev/null
 
 if [ -n "${INPUT_ENV_FILE}" ];then
     echo -e "\u001b[36mSourcing Environment File: ${INPUT_ENV_FILE}"
@@ -61,9 +68,11 @@ if [ -n "${INPUT_ENV_FILE}" ];then
     set -a
     # shellcheck disable=SC1090
     source "${INPUT_ENV_FILE}"
-    # echo TRAEFIK_HOST: "${TRAEFIK_HOST}"
-    # export ENV_FILE="${INPUT_ENV_FILE}"
 fi
 
 echo -e "\u001b[36mDeploying Stack: \u001b[37;1m${INPUT_NAME}"
-docker stack deploy -c "${INPUT_FILE}" "${INPUT_NAME}"
+if [[ "${INPUT_WITH_REGISTRY_AUTH}" -eq 1 ]];then
+  docker stack deploy -c "${INPUT_FILE}" "${INPUT_NAME}" --with-registry-auth
+else
+  docker stack deploy -c "${INPUT_FILE}" "${INPUT_NAME}"
+fi
