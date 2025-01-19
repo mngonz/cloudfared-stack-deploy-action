@@ -71,7 +71,7 @@ if [ -n "${INPUT_ENV_FILE}" ];then
 fi
 
 echo -e "\u001b[36mDeploying Stack: \u001b[37;1m${INPUT_NAME}"
-if [[ "${INPUT_WITH_REGISTRY_AUTH}" -eq 1 ]];then
+if [[ "${INPUT_WITH_REGISTRY_AUTH}" == "true" ]];then
   docker stack deploy -c "${INPUT_FILE}" "${INPUT_NAME}" --with-registry-auth
 else
   docker stack deploy -c "${INPUT_FILE}" "${INPUT_NAME}"
