@@ -1,0 +1,49 @@
+name: "Cloudflared Docker Stack Deploy"
+description: "Deploy a Cloudflared Docker Stack"
+author: "matt"
+branding:
+  icon: "layers"
+  color: "green"
+
+inputs:
+  host:
+    description: "Docker Host"
+    required: true
+  port:
+    description: "Docker Port"
+    default: "22"
+    required: false
+  user:
+    description: "Docker User"
+    required: true
+  pass:
+    description: "Docker Pass"
+    required: false
+  ssh_key:
+    description: "SSH Key File"
+    required: false
+  file:
+    description: "Docker Stack File"
+    default: "docker-stack.yaml"
+    required: false
+  name:
+    description: "Docker Stack Name"
+    required: true
+  env_file:
+    description: "Environment File"
+    required: false
+  cf_token_id:
+    description: "Cloudflare service token id"
+    required: false
+  cf_token_secret:
+    description: "Cloudflare service token secret"
+    required: false
+  with_registry_auth:
+    description: "Should deploy using registry auth"
+    type: boolean
+    default: false
+    required: false
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
