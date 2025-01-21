@@ -41,14 +41,16 @@ else
 fi
 
 # Create hosts file config
-echo "Host ${INPUT_HOST}" >> /root/.ssh/config
-echo "User ${INPUT_USER}" >> /root/.ssh/config
-echo "IdentityFile ~/.ssh/id_rsa" >> /root/.ssh/config
-echo "UserKnownHostsFile ~/.ssh/known_hosts" >> /root/.ssh/config
-echo "ServerAliveInterval 240" >> /root/.ssh/config
+{
+  echo "Host ${INPUT_HOST}"
+  echo "User ${INPUT_USER}"
+  echo "IdentityFile ~/.ssh/id_rsa"
+  echo "UserKnownHostsFile ~/.ssh/known_hosts"
+  echo "ServerAliveInterval 240"
+} >> /root/.ssh/config
 # I've decided to accept new because isn't any connection going to be new anyway?
 echo "StrictHostKeyChecking accept-new" >> /root/.ssh/config
-if [ -z ${INPUT_CF_TOKEN_ID} ] && [ -z ${INPUT_CF_TOKEN_SECRET} ]
+if [ -z "${INPUT_CF_TOKEN_ID}" ] && [ -z "${INPUT_CF_TOKEN_SECRET}" ]
 then
     echo "ProxyCommand /usr/bin/cloudflared access ssh --hostname %h" >> /root/.ssh/config
 else
