@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM docker:latest
 
 RUN apk add --update --no-cache bash sshpass openssh curl
 RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/bin/cloudflared
